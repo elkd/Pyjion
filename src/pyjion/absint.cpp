@@ -542,8 +542,16 @@ AbstractInterpreter::interpret(PyObject* builtins, PyObject* globals, PyjionCode
                     break;
                 }
                 case STORE_GLOBAL:
-                    POP_VALUE();
-                    break;
+                    auto glob = PyTuple_GetItem(mCode->co_names, oparg);
+
+                    if (glob == nullptr) {
+                            lastState.push(value);
+                            lastResolvedGlobal[oparg] = v;
+                    } else {
+                        POP_VALUE();
+                        break;
+                    }
+
                 case LOAD_ATTR: {
                     if (PGC_READY()) {
                         PGC_PROBE(1);
